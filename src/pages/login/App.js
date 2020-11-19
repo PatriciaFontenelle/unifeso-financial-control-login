@@ -1,5 +1,7 @@
-import logo from "./logo.svg";
+import logo from "../../logo.svg";
 import "./App.css";
+
+import RecuperarSenha from '../passwordRecovery/RecuperarSenha';
 
 function App() {
   return (
