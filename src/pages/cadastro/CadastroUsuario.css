@@ -1,0 +1,41 @@
+html {
+
+    background-color: darkturquoise;
+}
+.containerCadastro {
+    background-color: darkturquoise;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-height: 100%;
+}
+
+.containerFormCadastro {
+    padding: 20px;
+    width: 50%;
+    background-color: white;
+}
+
+.header {
+    display: flex;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 70px;
+    margin-left: -15px;
+    margin-bottom: 15px;
+}
+
+.header img {
+    width: 100px;
+    margin-right: -15px;
+}
+
+.input {
+    width: 250px;
+}
+
+.avatar-uploader {
+    align-items: center;
+}
