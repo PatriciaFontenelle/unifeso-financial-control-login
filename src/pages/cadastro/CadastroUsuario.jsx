@@ -4,9 +4,30 @@ import { Upload, message, DatePicker, Form, Input, Select, Button } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import './CadastroUsuario.css'
 import 'antd/dist/antd.css';
+import { validateEmail } from "../../funcs/Validations";
+
+const URL = 'http://localhost/8090/register'
 
 const { Option } = Select;
 const dateFormat = 'DD/MM/YYYY';
+
+
+const onFinish = (values) => {
+    debugger;
+    if(values.senha !== values.confirmaSenha){
+        message.warning("Os campos 'Senha' e 'Confirmar senha' possuem valores diferentes!");
+        return;
+    }
+
+    if(values.senha.length < 5){
+        message.warning("A senha deve possui ao menos 6 caracteres.")
+    }
+}
+
+const validateMessages = {
+    required: "Este campo é obrigatório!!!!!!!!!!!!!",
+    min: "A senha deve possuir pelo menos 6 caracteres.",
+};
 
 class CadastroUsuario extends React.Component{
     
@@ -60,9 +81,38 @@ class CadastroUsuario extends React.Component{
         }
     };
 
+    handleSubmit = (e) => {
 
+        debugger;
+        if (e.senha !== e.confirmaSenha) {
+            message.warning("As senhas não conferem")
+            return;
+        }
+
+        const user = {
+            fotoPerfil = this.state.imageUrl,
+            nome = e.nome,
+            sobrenome = e.sobrenome,
+            genero = e.genero,
+            dataNascimento = e.dataNascimento,
+            telefone = e.telefone,
+            endereco = e.endereco,
+            email = e.email,
+            senha = e.senha
+        }
+
+        Axios.post(URL, user)
+            .then((res) => {
+                console.log(res);
+            });
+
+        
+
+    }
+
+    
+    
     render(){
-
         const { loading, imageUrl } = this.state;
         debugger;
         const uploadButton = (
@@ -75,8 +125,6 @@ class CadastroUsuario extends React.Component{
         const opcoesGenero = this.generoOptions.map((genero) => {
             return <Option key={genero} value={genero}>{genero}</Option>
         })
-
-        const message = "Este campo é obrigatório."
 
         return(
             <div className="containerCadastro">
@@ -100,12 +148,15 @@ class CadastroUsuario extends React.Component{
                         {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
                     </Upload>
 
-                    <Form style={{marginTop: 15}}>
-                        <Form.Item name="nome" label="Nome" rules={[{ required: true, message: message }]}>
+                    <Form 
+                        style={{marginTop: 15  }}
+                        onFinish={this.handleSubmit}
+                    >
+                        <Form.Item name="nome" label="Nome" rules={[{ required: true }]}>
                             <Input />
                         </Form.Item>
                         
-                        <Form.Item name="sobrenome" label="Sobrenome" rules={[{ required: true, message: message }]}>
+                        <Form.Item name="sobrenome" label="Sobrenome" rules={[{ required: true }]}>
                             <Input />
                         </Form.Item>
 
@@ -130,15 +181,15 @@ class CadastroUsuario extends React.Component{
                         </Form.Item>
                         
                         
-                        <Form.Item name="email" label="E-mail" rules={[{ required: true, message: message }]}>
+                        <Form.Item name="email" label="E-mail" rules={[{ required: true }]}>
                             <Input />
                         </Form.Item>
 
-                        <Form.Item name="senha" label="Senha" rules={[{ required: true, message: message }]}>
+                        <Form.Item name="senha" label="Senha" rules={[{ required: true, message: validateMessages.required}, {min: 5, message: validateMessages.min}]}>
                             <Input.Password />
                         </Form.Item>
                         
-                        <Form.Item name="confirmaSenha" label="Confirme a sua senha" rules={[{ required: true, message: message }]}>
+                        <Form.Item name="confirmaSenha" label="Confirme a sua senha" rules={[{ required: true, min: 5 } ]}>
                             <Input.Password />
                         </Form.Item>
                         
