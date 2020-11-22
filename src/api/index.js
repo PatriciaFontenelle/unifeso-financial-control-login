@@ -1,5 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { ErrorHandlerMiddleware } = require("../middlewares");
+//const cors = require('cors');
+
+const { userRouter } = require("../routers");
 
 mongoose.connect(
     "mongodb+srv://unifeso:unifeso-password@unifeso.kwuxv.gcp.mongodb.net/unifeso-financial-control?retryWrites=true&w=majority",
@@ -17,15 +21,12 @@ db.once("open", function () {
 
 const app = express();
 
+//app.use(cors());
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
-require('../controllers/authController')(app);
-
-
-app.get('/', (req, res) => {
-    res.send("Ok");
-})
+app.use("/users", userRouter);
+app.use(ErrorHandlerMiddleware);
 
 const port = 8090;
 app.listen(port, () => console.log(`Rodando em localhost:${port}`));

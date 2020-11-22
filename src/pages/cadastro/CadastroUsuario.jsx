@@ -4,9 +4,9 @@ import { Upload, message, DatePicker, Form, Input, Select, Button } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import './CadastroUsuario.css'
 import 'antd/dist/antd.css';
-import { validateEmail } from "../../funcs/Validations";
+const axios = require('axios');
 
-const URL = 'http://localhost/8090/register'
+const URL = 'http://localhost/8090/users'
 
 const { Option } = Select;
 const dateFormat = 'DD/MM/YYYY';
@@ -25,19 +25,18 @@ const onFinish = (values) => {
 }
 
 const validateMessages = {
-    required: "Este campo é obrigatório!!!!!!!!!!!!!",
-    min: "A senha deve possuir pelo menos 6 caracteres.",
+    required: "Este campo é obrigatório!",
 };
 
 class CadastroUsuario extends React.Component{
     
     state = {
-        //usuario: {},
+        loadingImage: false,
         loading: false,
         imageUrl: '',
     }
 
-    generoOptions = ['Masculino', 'Femenino', 'Outro']
+    generoOptions = ['Masculino', 'Feminino', 'Outro']
 
     constructor(props){
         super(props);
@@ -54,6 +53,7 @@ class CadastroUsuario extends React.Component{
     }
 
     beforeUpload(file) {
+        debugger;
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isJpgOrPng) {
           message.error('Por favor, envie sua imagem em JPG ou PNG!');
@@ -66,8 +66,9 @@ class CadastroUsuario extends React.Component{
     }
 
     handleChange = info => {
+        debugger;
         if (info.file.status === 'uploading') {
-          this.setState({ loading: true });
+          this.setState({ loadingImage: true });
           return;
         }
         if (info.file.status === 'done') {
@@ -75,14 +76,14 @@ class CadastroUsuario extends React.Component{
           this.getBase64(info.file.originFileObj, imageUrl =>
             this.setState({
               imageUrl,
-              loading: false,
+              loadingImage: false,
             }),
           );
         }
     };
 
-    handleSubmit = (e) => {
-
+    handleSubmit = async (e) => {
+        this.setState({ loading: true })
         debugger;
         if (e.senha !== e.confirmaSenha) {
             message.warning("As senhas não conferem")
@@ -90,21 +91,25 @@ class CadastroUsuario extends React.Component{
         }
 
         const user = {
-            fotoPerfil = this.state.imageUrl,
-            nome = e.nome,
-            sobrenome = e.sobrenome,
-            genero = e.genero,
-            dataNascimento = e.dataNascimento,
-            telefone = e.telefone,
-            endereco = e.endereco,
-            email = e.email,
-            senha = e.senha
+            fotoPerfil: this.state.imageUrl,
+            nome: e.nome,
+            sobrenome: e.sobrenome,
+            genero: e.genero,
+            dataNascimento: e.dataNascimento.toDate(),
+            telefone: e.telefone,
+            endereco: e.endereco,
+            email: e.email,
+            senha: e.senha
         }
+        debugger;
 
-        Axios.post(URL, user)
-            .then((res) => {
-                console.log(res);
-            });
+        await axios.post(URL, user)
+            .then(function (response) {
+                debugger;
+                console.log(response);
+            })
+
+        this.setState({ loading: false })
 
         
 
@@ -113,11 +118,11 @@ class CadastroUsuario extends React.Component{
     
     
     render(){
-        const { loading, imageUrl } = this.state;
+        const { loadingImage, imageUrl } = this.state;
         debugger;
         const uploadButton = (
             <div>
-                {loading ? <LoadingOutlined /> : <PlusOutlined />}
+                {loadingImage ? <LoadingOutlined /> : <PlusOutlined />}
                 <div style={{ marginTop: 8 }}>Foto de Perfil</div>
             </div>
         );
@@ -151,6 +156,7 @@ class CadastroUsuario extends React.Component{
                     <Form 
                         style={{marginTop: 15  }}
                         onFinish={this.handleSubmit}
+                        validateMessages={validateMessages}
                     >
                         <Form.Item name="nome" label="Nome" rules={[{ required: true }]}>
                             <Input />
@@ -185,17 +191,17 @@ class CadastroUsuario extends React.Component{
                             <Input />
                         </Form.Item>
 
-                        <Form.Item name="senha" label="Senha" rules={[{ required: true, message: validateMessages.required}, {min: 5, message: validateMessages.min}]}>
+                        <Form.Item name="senha" label="Senha" rules={[{ required: true }]}>
                             <Input.Password />
                         </Form.Item>
                         
-                        <Form.Item name="confirmaSenha" label="Confirme a sua senha" rules={[{ required: true, min: 5 } ]}>
+                        <Form.Item name="confirmaSenha" label="Confirme a sua senha" rules={[{ required: true } ]}>
                             <Input.Password />
                         </Form.Item>
                         
                         <Form.Item>
-                            <Button type="primary" htmlType="submit">
-                                Submit
+                            <Button type="primary" htmlType="submit" loading={this.state.loading}>
+                                Enviar
                             </Button>
                         </Form.Item>
 
